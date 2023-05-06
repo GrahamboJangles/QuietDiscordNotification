@@ -5,6 +5,7 @@ from pystray import Icon as icon, Menu as menu, MenuItem as item
 from PIL import Image
 import threading
 import ctypes
+import time
 
 # Function to show the window
 def show_window(icon, item):
@@ -39,6 +40,11 @@ def get_discord_volume():
 
 # Function to set the volume of Discord
 def set_discord_volume(volume):
+    global discord_volume
+    
+    # Set the global volume variable to the specified value
+    discord_volume = volume
+    
     # Get all audio sessions
     sessions = AudioUtilities.GetAllSessions()
     for session in sessions:
@@ -60,12 +66,12 @@ def set_volume(icon, item, volume):
     set_discord_volume(volume)
 
 # Create an image for the system tray icon
-image = Image.open("icon.ico")
+image = Image.open("discord.ico")
 
 # Create a menu for the system tray icon
 menu = menu(
     # item('Show Volume', show_volume),
-    menu.SEPARATOR,
+    # menu.SEPARATOR,
     item('Set Volume to 100%', lambda icon, item: set_volume(icon, item, 1.0)),
     item('Set Volume to 75%', lambda icon, item: set_volume(icon, item, 0.75)),
     item('Set Volume to 50%', lambda icon, item: set_volume(icon, item, 0.5)),
@@ -89,5 +95,18 @@ tray_thread = threading.Thread(target=run_tray_icon)
 # Start the thread for the system tray icon
 tray_thread.start()
 
+# Set the interval (in seconds) for setting the volume
+interval = 10
+
+# Set the initial volume for Discord (0.0 to 1.0)
+discord_volume = 0.1
+
 # Make it run in the background
 ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
+
+while True:
+    # Set the volume of Discord
+    set_discord_volume(discord_volume)
+    
+    # Wait for the next interval
+    time.sleep(interval)
