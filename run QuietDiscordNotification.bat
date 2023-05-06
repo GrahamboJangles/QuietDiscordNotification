@@ -1,0 +1,2 @@
+python QuietDiscordNotification.py
+::pause
